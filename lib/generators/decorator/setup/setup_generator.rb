@@ -1,11 +1,14 @@
-require 'generators/decorator'
-
 module Decorator
-  module Generators
-    class SetupGenerator < Base
-      def create_setup
-        directory "app/decorators"
-        copy_file "load_decorators.rb", "config/initializers/load_decorators.rb"
+  class SetupGenerator < Rails::Generators::Base
+    source_root File.expand_path('../templates', __FILE__)
+  
+    def create_directory
+      empty_directory "app/decorators"
+    end  
+  
+    def build_initializer
+      initializer("load_decorators.rb") do
+        "RailsDecorators::Loader.load"
       end
     end
   end

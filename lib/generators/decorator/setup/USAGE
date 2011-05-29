@@ -1,5 +1,5 @@
 Description:
-    The decorators_setup generator creates an /app/decorators folder and
+    The setup generator creates an /app/decorators folder and
     a /config/initializers/load_decorators.rb initializer.
 
     Any decorator module in /app/decorators that matches a model name

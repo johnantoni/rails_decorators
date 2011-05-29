@@ -1,0 +1,8 @@
+Description:
+    The decorator:model generator creates a decorator module in /app/decorators
+    setup to interact with the named model.
+
+Examples:
+    rails generate decorator:model Article
+
+        file: app/decorators/article_decorator.rb
