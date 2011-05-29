@@ -3,7 +3,7 @@ Rails Decorators
 
 This gem makes it easy to apply the decorator pattern to the models in a Rails application.
 
-## Why?
+## Why use decorators?
 
 Helpers, as they're commonly used, are a bit odd. In both Ruby and Rails we approach everything from an Object-Oriented perspective, then with helpers we get procedural.
 
@@ -11,9 +11,19 @@ The job of a helper is to take in data or a data object and output presentation-
 
 In general, a decorator wraps an object with presentation-related accessor methods. For instance, if you had an `Article` object, then a decorator might add instance methods like `.formatted_published_at` or `.formatted_title` that output actual HTML.
 
-## How?
+## How is it implemented?
 
-Here are the steps to utilizing this pattern:
+To implement the pattern in Rails we can:
+
+1. Write a module with the decoration methods
+2. Inject that module into the model
+3. Utilize those methods within our view layer
+
+We're not polluting the model layer because it's code stays purely persistence and business logic. The decorator is a part of the view layer, and that's the only place we'd utilize the decoration methods.
+
+## How do you utilize this gem in your application?
+
+Here are the steps to utilizing this gem:
 
 Add the dependency to your `Gemfile`:
 
@@ -47,7 +57,7 @@ If you need access to the Rails helpers like `link_to` and `content_tag`, includ
 
 Use the new methods in your views like any other model method (ex: `@article.formatted_published_at`)
 
-## Uses
+## Possible Decoration Methods
 
 Here are some ideas of what you might do in decorator methods:
 
@@ -55,7 +65,7 @@ Here are some ideas of what you might do in decorator methods:
 * Format dates and times using `strftime`
 * Implement a commonly used representation of the data object like a `.name` method that combines `first_name` and `last_name` attributes
 
-## Example
+## Example Using a Decorator
 
 Let's say I have a publishing system with `Article` resources. My designer decides that whenever we print the published-at timestamp, it should be constructed like this:
 
