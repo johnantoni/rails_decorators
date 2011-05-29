@@ -67,9 +67,9 @@ Here are some ideas of what you might do in decorator methods:
 
 ## Example Using a Decorator
 
-Let's say I have a publishing system with `Article` resources. My designer decides that whenever we print the published-at timestamp, it should be constructed like this:
+Say I have a publishing system with `Article` resources. My designer decides that whenever we print the `published_at` timestamp, it should be constructed like this:
 
-```
+```html
 <span class='published_at'>
   <span class='date'>Monday, May 6</span>
   <span class='time'>8:52AM</span>
