@@ -15,11 +15,9 @@ In general, a decorator wraps an object with presentation-related accessor metho
 
 To implement the pattern in Rails we can:
 
-1. Write a module with the decoration methods
-2. Inject that module into the model
+1. Write a wrapper class with the decoration methods
+2. Wrap the data object
 3. Utilize those methods within our view layer
-
-We're not polluting the model layer because it's code stays purely persistence and business logic. The decorator is a part of the view layer, and that's the only place we'd utilize the decoration methods.
 
 ## How do you utilize this gem in your application?
 
@@ -37,23 +35,21 @@ Run bundle:
 bundle
 ```
 
-Run the setup generator to create a decorators folder and an initializer to connect your decorators with your models:
-
-```
-rails generate decorator:setup
-```
-
 Create a decorator for your model (ex: `Article`)
 
 ```
 rails generate decorator:model Article
 ```
 
-Open the decorator module (ex: `app/decorators/article_decorator.rb`)
+Open the decorator model (ex: `app/decorators/article_decorator.rb`)
 
-Add your new formatting methods inside the `instance_methods` module
+Add your new formatting methods as normal instance or class methods. You have access to the Rails helpers from the following classes:
 
-If you need access to the Rails helpers like `link_to` and `content_tag`, include the appropriate modules (commented out in the generated decorator)
+```
+ActionView::Helpers::TagHelper
+ActionView::Helpers::UrlHelper
+ActionView::Helpers::TextHelper
+```
 
 Use the new methods in your views like any other model method (ex: `@article.formatted_published_at`)
 
@@ -80,21 +76,13 @@ Could we build that using a partial? Yes. A helper? Uh-huh. But the point of the
 
 First, follow the steps above to add the dependency, update your bundle, then run the `rails generate decorator:setup` to prepare your app.
 
-Each decorator is dedicated to a single model. Since we're talking about the `Article` model we'll create an `ArticleDecorator` module. You could do it by hand, but use the provided generator:
+Since we're talking about the `Article` model we'll create an `ArticleDecorator` class. You could do it by hand, but use the provided generator:
 
 ```
 rails generate decorator:model Article
 ```
 
-Now open up the created `app/decorators/article_decorator.rb` and you'll find an `ArticleDecorator` module. 
-
-Why is this a `module`? A traditional decorator implementation uses a second class to completely encapsulate the subject. But because Ruby has such a flexible object model, this isn't necessary. We instead build the decorator as a module and inject that module into the original class. This allows the model's source code to remain purely persistence and business logic while the module contains all the decorations. Neither the model nor the controller layers need to know about the existence of the decorator methods, they can live up at the view layer.
-
-Within the module, notice that we `extend ActiveSupport::Concern`. This library allows us to mask some of the ugliness of Ruby modules and utilize a simplified syntax. (Here's a great tutorial: http://www.fakingfantastic.com/2010/09/20/concerning-yourself-with-active-support-concern/)
-
-Next you'll see commented-out samples for how to utilize Rails' view helper methods. In this example we could make use of the `content_tag` helper, so uncomment the `TagHelper` line. (API Reference: http://api.rubyonrails.org/classes/ActionView/Helpers/TagHelper.html)
-
-Move below those comments and you'll find a nested module named `InstanceMethods`. Any methods you add inside here will be available as instance methods on your object. Within the module, we would add this method:
+Now open up the created `app/decorators/article_decorator.rb` and you'll find an `ArticleDecorator` class. You'll see commented-out samples for how to utilize Rails' view helper methods. Move below those comments and add this method:
 
 ```ruby
 def formatted_published_at
@@ -106,7 +94,19 @@ end
 
 *ASIDE*: Unfortunately, due to the current implementation of `content_tag`, you can't use the style of sending the content is as a block or you'll get an error about `undefined method 'output_buffer='`. Passing in the content as the second argument, as above, works fine.
 
-Save the decorator file and it'll be auto-loaded on the next request just like the rest of your application. From the view, you can access it like any model method presuming you have an instance of `Article` in the variable `@article`:
+Save the decorator file and it'll be auto-loaded on the next request just like the rest of your application. 
+
+Then you need to perform the wrapping in your controller. Here's the simplest method:
+
+```
+class ArticlesController < ApplicationController
+  def show
+    @article = ArticleDecorator.new( Article.find params[:id] )
+  end
+end
+```
+
+Then within your views you can utilize both the normal data methods and your new presentation methods:
 
 ```
 <%= @article.formatted_published_at %>
@@ -115,16 +115,11 @@ Save the decorator file and it'll be auto-loaded on the next request just like t
 Ta-da! Object-oriented data formatting for your view layer. Below is the complete decorator with extra comments removed:
 
 ```ruby
-module ArticleDecorator
-  extend ActiveSupport::Concern
-  include ActionView::Helpers::TagHelper
-  
-  module InstanceMethods
-    def formatted_published_at
-      date = content_tag(:span, published_at.strftime("%A, %B %e").squeeze(" "), :class => 'date')
-      time = content_tag(:span, published_at.strftime("%l:%M%p").delete(" "), :class => 'time')
-      content_tag :span, date + time, :class => 'published_at'
-    end
+class ArticleDecorator < RailsDecorators::Base
+  def formatted_created_at
+    date = content_tag(:span, published_at.strftime("%A, %B %e").squeeze(" "), :class => 'date')
+    time = content_tag(:span, published_at.strftime("%l:%M%p"), :class => 'time').delete(" ")
+    content_tag :span, date + time, :class => 'created_at'
   end
 end
 ```
