@@ -6,10 +6,10 @@ module Decorator
       empty_directory "app/decorators"
     end  
   
-    def build_initializer
-      initializer("load_decorators.rb") do
-        "RailsDecorators::Loader.load"
-      end
-    end
+    # def build_initializer
+    #   initializer("load_decorators.rb") do
+    #     "RailsDecorators::Loader.load"
+    #   end
+    # end
   end
 end

@@ -1,1 +1,1 @@
-require 'rails_decorators/loader'
+require 'rails_decorators/base'

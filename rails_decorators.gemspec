@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "rails_decorators"
-  s.version     = "0.2.0"
+  s.version     = "0.2.5"
   s.author      = "Jeff Casimir"
   s.email       = "jeff@jumpstartlab.com"
   s.homepage    = "http://github.com/jcasimir/rails_decorators"
