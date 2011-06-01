@@ -94,11 +94,9 @@ end
 
 *ASIDE*: Unfortunately, due to the current implementation of `content_tag`, you can't use the style of sending the content is as a block or you'll get an error about `undefined method 'output_buffer='`. Passing in the content as the second argument, as above, works fine.
 
-Save the decorator file and it'll be auto-loaded on the next request just like the rest of your application. 
-
 Then you need to perform the wrapping in your controller. Here's the simplest method:
 
-```
+```ruby
 class ArticlesController < ApplicationController
   def show
     @article = ArticleDecorator.new( Article.find params[:id] )
@@ -108,7 +106,7 @@ end
 
 Then within your views you can utilize both the normal data methods and your new presentation methods:
 
-```
+```ruby
 <%= @article.formatted_published_at %>
 ```
 
@@ -116,7 +114,7 @@ Ta-da! Object-oriented data formatting for your view layer. Below is the complet
 
 ```ruby
 class ArticleDecorator < RailsDecorators::Base
-  def formatted_created_at
+  def formatted_published_at
     date = content_tag(:span, published_at.strftime("%A, %B %e").squeeze(" "), :class => 'date')
     time = content_tag(:span, published_at.strftime("%l:%M%p"), :class => 'time').delete(" ")
     content_tag :span, date + time, :class => 'created_at'
